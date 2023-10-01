@@ -1,13 +1,44 @@
-import { component$, useSignal } from "@builder.io/qwik";
+import { component$, useSignal, useContext, useVisibleTask$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
+import { MyContext } from "./layout";
 
 
 export default component$(() => {
   const displayIndex = useSignal(0);
-  return (
-   <div>
+  const data:any = useContext(MyContext);
 
-   </div>
+  useVisibleTask$(({cleanup}) => {
+    const interval = setInterval(() => {
+      if (displayIndex.value < data.affirmations.length - 1) {
+        displayIndex.value++
+      } else {
+        displayIndex.value = 0 
+      }
+    }, 30000)
+    cleanup(() => clearInterval(interval))
+  })
+  return (
+  <>
+        {data.affirmations.length > 0 ? (
+          <>
+            <h1
+            class="text-3xl font-semibold text-center"
+            >"{data.affirmations[displayIndex.value][0]}"</h1>
+            <p
+            class="text-slate-300 text-sm text-center"
+            ><i>{data.affirmations[displayIndex.value][1]}</i></p>
+          </>
+        ) : (
+          <>
+            <p
+            class="text-4xl font-semibold text-center"
+            >Welcome to Affirmations!</p>
+            <p 
+            class="px-4 py-2 rounded border border-white border-solid bg-white text-slate-900 hover:bg-slate-300 cursor-pointer duration-200"
+            onClick$={() => {data.openModal = true}}>Add an affirmation</p>
+          </>
+        )}
+   </>
   );
 });
 
